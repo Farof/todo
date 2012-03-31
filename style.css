@@ -1,0 +1,271 @@
+html, body, div, p, span, a, input, textarea {
+  margin: 0px;
+  padding: 0px;
+}
+
+html {
+  height: 100%;
+}
+
+body {
+  background-color: #FAFAFA;
+  color: #3E3D40;
+  height: 100%;
+  position: relative;
+}
+
+#header {
+  padding: 3px;
+  position: relative;
+}
+
+#title {
+  display: inline;
+  display: none;
+  font-size: 0.9em;
+}
+
+#info {
+  float: right;
+  font-size: 0.85em;
+  overflow: hidden;
+}
+
+#info-arrow {
+  display: inline;
+}
+
+#info-arrow:before {
+  content: '-';
+  cursor: pointer;
+}
+
+#info.hidden > #info-arrow:before {
+  content: '+';
+}
+
+#info-text {
+  -moz-transition-property: width;
+  -moz-transition-duration: 1s;
+  display: inline-block;
+  width: 10.8em;
+  white-space: nowrap;
+}
+
+#info.hidden > #info-text {
+  width: 0em;
+}
+
+#info-text > a {
+  color: black;
+}
+
+#content {
+  bottom: 10%;
+  left: 20%;
+  margin: 5em auto 0;
+  max-width: 600px;
+  position: absolute;
+  right: 20%;
+  top: 0%;
+}
+
+#projects {
+  -moz-transition-property: border-color;
+  -moz-transition-duration: 0.5s;
+  border-right: 1px dotted #3E3D40;
+  height: 100%;
+  position: absolute;
+}
+
+#content.collapse-projects > #projects {
+  border-color: transparent;
+}
+
+#projects-list {
+  -moz-transition-property: width, opacity;
+  -moz-transition-duration: 0.5s;
+  height: 100%;
+  opacity: 1;
+  overflow: auto;
+  width: 130px;
+}
+
+#content.collapse-projects > #projects > #projects-list {
+  opacity: 0;
+  width: 0px;
+}
+
+.project {
+
+}
+
+.project ~ .project {
+  margin-top: 5px;
+}
+
+.project:last-of-type {
+  margin-bottom: 5px;
+}
+
+.project.active {
+
+}
+
+#projects-list.active .project.active {
+
+}
+
+.project > .input {
+
+}
+
+.project > .text {
+
+}
+
+#projects-arrow-wrapper {
+  -moz-transition-property: right;
+  -moz-transition-duration: 0.5s;
+  float: right;
+  position: absolute;
+  right: 0.4em;
+  top: 50%;
+}
+
+#content.collapse-projects > #projects > #projects-arrow-wrapper {
+  right: -0.7em;
+}
+
+#projects-arrow {
+  -moz-transform: translateY(-50%);
+  cursor: pointer;
+}
+
+#projects-arrow:before {
+  content: '<';
+}
+
+#content.collapse-projects > #projects #projects-arrow:before {
+  content: '>';
+}
+
+#tasks {
+  -moz-transition-property: left;
+  -moz-transition-duration: 0.5s;
+  bottom: 0px;
+  height: 100%;
+  left: 150px;
+  position: absolute;
+  right: 0px;
+  top: 0px;
+}
+
+#content.collapse-projects > #tasks {
+  left: 20px;
+}
+
+#tasks-list {
+
+}
+
+.task {
+
+}
+
+.task ~ .task {
+  margin-top: 10px;
+}
+
+.task:last-of-type {
+  margin-bottom: 10px;
+}
+
+.task.active {
+
+}
+
+#tasks-list.active .task.active {
+
+}
+
+.task > .input {
+  resize: vertical;
+}
+
+.task > .text {
+
+}
+
+#tasks-control {
+  margin-top: 5px;
+}
+
+.control {
+  display: inline-block;
+}
+
+.control:hover,
+#tasks.active .control.active {
+
+}
+
+.control.active {
+
+}
+
+#tasks.active .control.active {
+
+}
+
+#add-task {
+
+}
+
+.section {
+  max-height: 100%;
+  overflow: auto;
+  padding: 5px;
+}
+
+.item {
+  -moz-transition-property: box-shadow;
+  -moz-transition-duration: 0.2s;
+}
+
+.item,
+.item > .input {
+  border-radius: 3px;
+}
+
+.item:not(.editing):hover {
+  box-shadow: 0px 0px 2px 0px #3E3D40;
+  cursor: pointer;
+}
+
+.section.active .item.active {
+  box-shadow: 0px 0px 2px 0px #3E3D40;
+}
+
+.item > .input {
+  border: none;
+  width: 100%;
+}
+
+
+.item:not(.editing) > * {
+  pointer-events: none;
+}
+
+.item:not(.editing) > .input {
+  display: none;
+}
+
+.item > .text,
+.item.text {
+  padding: 2px 5px;
+}
+
+.item.editing > .text {
+  display: none;
+}
