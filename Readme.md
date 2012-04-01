@@ -3,6 +3,13 @@ Todo
 
 Attempt to a todo management web app.
 
+Goals:
+
+  * minimal visual distraction
+  * keeping it simple
+  * cross-browser, cross-plateform, keyboard / mouse / touch screen navigation
+  * extensible
+
 This first prototype is currently only tested on Firefox.
 
 Current features:
@@ -22,6 +29,9 @@ Planned features:
   * category creation and deletion
   * reorder categories and todos
   * declare todo as finished
+  * undo / redo
+  * use the HTML5 History API to target specific category / todo
+  * offline mode using HTML5 application cache
   * server sync ?
   * internationalization ?
 
