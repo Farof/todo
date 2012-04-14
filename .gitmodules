@@ -1,0 +1,3 @@
+[submodule "script/lib/frisbee"]
+	path = script/lib/frisbee
+	url = git@github.com:Farof/frisbee.git
