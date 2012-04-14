@@ -35,7 +35,7 @@ Planned features:
   * server sync ?
   * internationalization ?
 
-Feel free to suggest features and fill issues. Any kind of constructive feedback is appreciated.
+Feel free to suggest features and fill issues. Any kind of constructive feedback and code review is appreciated.
 
 
 license
