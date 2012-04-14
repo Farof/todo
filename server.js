@@ -1,3 +1,5 @@
+#!/usr/bin/env /usr/local/bin/node
+
 var frisbee = require('./script/lib/frisbee/');
 
 var server = frisbee()
