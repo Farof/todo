@@ -46,7 +46,17 @@
       get: function () {
         return this[this.length - 1];
       }
-    }
+    },
+
+    remove: {
+      value: function (item) {
+        var index = this.indexOf(item);
+        if (index > -1) {
+          this.splice(index, 1);
+        }
+        return this;
+      }
+    } 
   });
 
   var Keys = {
@@ -59,7 +69,6 @@
   };
 
   window.addEventListener('DOMContentLoaded', function () {
-
     $('info-arrow').addEventListener('click', function () {
       var c = $('info').classList;
       c.toggle('hidden');
@@ -81,6 +90,8 @@
           target.source.active = true;
         } else if (target.id === 'add-task') {
           todo.newTask();
+        } else if (target.id === 'add-project') {
+          todo.newProject();
         } else if (item) {
           item.editing = false;
           item.active = false;
@@ -194,39 +205,67 @@
     initSections: function () {
       this.sections.projects  =  new Section($('projects-list'),  'project', {
         up: function () {
-          this.activeItem.selectPrevious();
+          if (this.activeItem || (this.activeItem = this.lastActiveProject)) {
+            this.activeItem.selectPrevious();
+          } else {
+            todo.sections.projectControl.active = true;
+          }
         },
         down: function () {
-          this.activeItem.selectNext();
+          if (this.activeItem || (this.activeItem = this.lastActiveProject)) {
+            this.activeItem.selectNext();
+          } else {
+            todo.sections.projectControl.active = true;
+          }
         },
         right: function () {
-          if (!this.activeItem.editing) {
-            if (this.activeItem.tasks.length > 0) {
-              (todo.lastActiveSection || todo.sections.tasks)['active'] = true;
+          if (!this.activeItem || !this.activeItem.editing) {
+            if (this.activeItem && this.activeItem.tasks.length > 0) {
+              todo.sections.tasks.active = true;
             } else {
-              todo.sections.controls.active = true;
+              todo.sections.taskControl.active = true;
             }
+          }
+        },
+        left: function () {
+          if (!this.activeItem || !this.activeItem.editing) {
+            todo.sections.projectControl.active = true;
+          }
+        },
+        close: function () {
+          if (this.activeItem && !this.activeItem.editing) {
+            this.activeItem.erase();
           }
         }
       });
+
       this.sections.tasks     =  new Section($('tasks-list'),     'task', {
         up: function () {
           if (this.activeItem || (this.activeItem = todo.activeProject.lastActiveTask)) {
             this.activeItem.selectPrevious();
           } else {
-            todo.sections.controls.active = true;
+            todo.sections.taskControl.active = true;
           }
         },
         down: function () {
           if (this.activeItem || (this.activeItem = todo.activeProject.lastActiveTask)) {
             this.activeItem.selectNext();
           } else {
-            todo.sections.controls.active = true;
+            todo.sections.taskControl.active = true;
           }
         },
         left: function () {
           if (!this.activeItem || !this.activeItem.editing) {
-            todo.sections.projects.active = true;
+            if (todo.projects.length > 0) {
+              todo.sections.projects.active = true;
+            } else {
+              todo.sections.projectControl.active = true;
+            }
+          }
+        },
+        right: function () {
+          if (!this.activeItem || !this.activeItem.editing) {
+            todo.sections.taskControl.active = true;
           }
         },
         close: function () {
@@ -235,7 +274,8 @@
           }
         }
       });
-      this.sections.controls  =  new Section($('tasks-control'),  'control', {
+
+      this.sections.taskControl  =  new Section($('tasks-control'),  'control', {
         up: function () {
           if (todo.activeProject.tasks.length > 0) {
             todo.sections.tasks.active = true;
@@ -249,7 +289,37 @@
           }
         },
         left: function () {
+          todo.sections.tasks.active = true;
+          todo.sections.tasks.left();
+        },
+        right: function () {
+          if (todo.activeProject.tasks.length > 0) {
+            todo.sections.tasks.active = true;
+          }
+        }
+      });
+
+      this.sections.projectControl = new Section($('projects-control'), 'control', {
+        up: function () {
+          if (todo.projects.length > 0) {
+            todo.sections.projects.active = true;
+            todo.projects.last.active = true;
+          }
+        },
+        down: function () {
+          if (todo.projects.length > 0) {
+            todo.sections.tasks.active = true;
+            todo.projects[0].active = true;
+          }
+        },
+        left: function () {
+          if (todo.projects.length > 0) {
+            todo.sections.projects.active = true;
+          }
+        },
+        right: function () {
           todo.sections.projects.active = true;
+          todo.sections.projects.right();
         }
       });
 
@@ -260,8 +330,15 @@
     initControls: function () {
       $('add-task').source = {
         activate: function () {
-          todo.sections.controls.up();
+          todo.sections.taskControl.up();
           todo.newTask();
+        }
+      };
+
+      $('add-project').source = {
+        activate: function () {
+          todo.sections.projectControl.up();
+          todo.newProject();
         }
       };
     },
@@ -348,7 +425,6 @@
         } else if (!value && this.active) {
           this.node.classList.remove('active');
           todo.activeSection = null;
-          todo.lastActiveSection = this;
         }
       }
     },
@@ -559,9 +635,18 @@
       }
     },
 
+    unload: {
+      value: function () {
+        if (this.active) {
+          $('tasks-list').empty();
+        }
+      }
+    },
+
     typeActive: {
       value: function (value) {
         if (value) {
+          this.load();
           todo.sections.projects.active = true;
           todo.activeProject = this;
           localStorage.activeProject = this.uuid;
@@ -628,6 +713,8 @@
           next = this.next;
           if (next) {
             next.active = true;
+          } else {
+            todo.sections.projectControl.active = true;
           }
         }
       }
@@ -640,6 +727,8 @@
           prev = this.previous;
           if (prev) {
             prev.active = true;
+          } else {
+            todo.sections.projectControl.active = true;
           }
         }
       }
@@ -668,6 +757,23 @@
       get: function () {
         var item = todo.projects[todo.projects.indexOf(this) - 1];
         return item ? item : null;
+      }
+    },
+
+    erase: {
+      value: function () {
+        var next = this.next || this.previous;
+
+        this.unload();
+        this.node.erase();
+        todo.projects.remove(this);
+        if (next) {
+          next.active = true;
+        } else {
+          todo.lastActiveProject = null;
+          todo.sections.projectControl.active = true;
+          todo.save();
+        }
       }
     }
   });
@@ -744,7 +850,7 @@
           if (next) {
             next.active = true;
           } else {
-            todo.sections.controls.active = true;
+            todo.sections.taskControl.active = true;
           }
         }
       }
@@ -758,7 +864,7 @@
           if (prev) {
             prev.active = true;
           } else {
-            todo.sections.controls.active = true;
+            todo.sections.taskControl.active = true;
           }
         }
       }
@@ -787,7 +893,8 @@
         if (next) {
           next.active = true;
         } else {
-          todo.sections.controls.active = true;
+          this.lastActiveTask = null;
+          todo.sections.taskControl.active = true;
           todo.save();
         }
       }

@@ -85,7 +85,7 @@ body {
 #projects-list {
   -moz-transition-property: width, opacity;
   -moz-transition-duration: 0.5s;
-  height: 100%;
+  /*height: 100%;*/
   opacity: 1;
   overflow: auto;
   width: 130px;
@@ -122,6 +122,10 @@ body {
 
 .project > .text {
 
+}
+
+#projects-control {
+  
 }
 
 #projects-arrow-wrapper {
