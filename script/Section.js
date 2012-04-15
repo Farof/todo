@@ -19,10 +19,15 @@
       },
 
       set: function (value) {
+        var last;
         if (value && !this.active) {
-          todo.activeSection.active = false;
+          last = todo.activeSection;
+          if (last) {
+            last.active = false;
+          }
           this.node.classList.add('active');
           todo.activeSection = this;
+          todo.lastActiveSection = this;
         } else if (!value && this.active) {
           this.node.classList.remove('active');
           todo.activeSection = null;

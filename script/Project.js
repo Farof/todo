@@ -103,6 +103,7 @@
           this.load();
           todo.sections.projects.active = true;
           todo.activeProject = this;
+          todo.lastActiveProject = this;
           localStorage.activeProject = this.uuid;
         } else {
           todo.activeProject = null;

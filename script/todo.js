@@ -37,6 +37,7 @@
         } else if (item) {
           item.editing = false;
           item.active = false;
+          todo.activeSection.active = false;
         }
     });
 
@@ -55,18 +56,18 @@
       //console.log('keydown: ', code, e);
       todo.event = e;
 
-      if (code === Keys.ENTER) {          // edit or create new task / new project
+      if (code === Keys.ENTER && todo.activeSection) {          // edit or create new task / new project
         e.preventDefault();
         todo.activeSection.activeItem.activate();
       } else if (code === Keys.DOWN) {    // select next item
-        todo.activeSection.down();
+        todo.lastActiveSection.down();
       } else if (code === Keys.UP) {      // select previous item
-        todo.activeSection.up();
+        todo.lastActiveSection.up();
       } else if (code === Keys.LEFT) {    // select prevous section / projects
-        todo.activeSection.left();
+        todo.lastActiveSection.left();
       } else if (code === Keys.RIGHT) {   // select next section / tasks
-        todo.activeSection.right();
-      } else if (code === Keys.W && e.altKey) {
+        todo.lastActiveSection.right();
+      } else if (code === Keys.W && e.altKey && todo.activeSection) {
         todo.activeSection.close();
       }
 
@@ -147,14 +148,14 @@
     initSections: function () {
       this.sections.projects  =  new Section($('projects-list'),  'project', {
         up: function () {
-          if (this.activeItem || (this.activeItem = this.lastActiveProject)) {
+          if (this.activeItem || (this.activeItem = todo.lastActiveProject)) {
             this.activeItem.selectPrevious();
           } else {
             todo.sections.projectControl.active = true;
           }
         },
         down: function () {
-          if (this.activeItem || (this.activeItem = this.lastActiveProject)) {
+          if (this.activeItem || (this.activeItem = todo.lastActiveProject)) {
             this.activeItem.selectNext();
           } else {
             todo.sections.projectControl.active = true;
@@ -177,6 +178,40 @@
         close: function () {
           if (this.activeItem && !this.activeItem.editing) {
             this.activeItem.erase();
+          }
+        }
+      });
+
+      this.sections.projectControl = new Section($('projects-control'), 'control', {
+        up: function () {
+          if (todo.projects.length > 0) {
+            todo.sections.projects.active = true;
+            todo.projects.last.active = true;
+          } else {
+            this.active = true;
+          }
+        },
+        down: function () {
+          if (todo.projects.length > 0) {
+            todo.sections.tasks.active = true;
+            todo.projects[0].active = true;
+          } else {
+            this.active = true;
+          }
+        },
+        left: function () {
+          if (todo.projects.length > 0) {
+            todo.sections.projects.active = true;
+            todo.lastActiveProject.active = true;
+          } else {
+            this.active = true;
+          }
+        },
+        right: function () {
+          if (todo.lastActiveProject && todo.lastActiveProject.tasks.length > 0) {
+            todo.sections.tasks.active = true;
+          } else {
+            todo.sections.taskControl.active = true;
           }
         }
       });
@@ -219,49 +254,35 @@
 
       this.sections.taskControl  =  new Section($('tasks-control'),  'control', {
         up: function () {
-          if (todo.activeProject.tasks.length > 0) {
+          if (todo.lastActiveProject && todo.lastActiveProject.tasks.length > 0) {
             todo.sections.tasks.active = true;
             todo.activeProject.selectLast();
+          } else {
+            this.active = true;
           }
         },
         down: function () {
-          if (todo.activeProject.tasks.length > 0) {
+          if (todo.lastActiveProject && todo.lastActiveProject.tasks.length > 0) {
             todo.sections.tasks.active = true;
             todo.activeProject.selectFirst();
-          }
-        },
-        left: function () {
-          todo.sections.tasks.active = true;
-          todo.sections.tasks.left();
-        },
-        right: function () {
-          if (todo.activeProject.tasks.length > 0) {
-            todo.sections.tasks.active = true;
-          }
-        }
-      });
-
-      this.sections.projectControl = new Section($('projects-control'), 'control', {
-        up: function () {
-          if (todo.projects.length > 0) {
-            todo.sections.projects.active = true;
-            todo.projects.last.active = true;
-          }
-        },
-        down: function () {
-          if (todo.projects.length > 0) {
-            todo.sections.tasks.active = true;
-            todo.projects[0].active = true;
-          }
+          } else{
+            this.active = true;
+          } 
         },
         left: function () {
           if (todo.projects.length > 0) {
             todo.sections.projects.active = true;
+          } else {
+            todo.sections.projectControl.active = true;
           }
         },
         right: function () {
-          todo.sections.projects.active = true;
-          todo.sections.projects.right();
+          if (todo.lastActiveProject && todo.lastActiveProject.tasks.length > 0) {
+            todo.sections.tasks.active = true;
+            todo.activeProject.lastActiveTask.active = true;
+          } else {
+            this.active = true;
+          }
         }
       });
 
@@ -297,13 +318,19 @@
     newProject: function (noEdit) {
       var p = new Project();
       $('projects-list').appendChild(p.node);
+      p.active = true;
       p.editing = noEdit ? false : true;
+      return p;
     },
 
     newTask: function (noEdit) {
-      var t = todo.getActiveProject().newTask();
+      var
+        p = todo.getActiveProject(),
+        t = (p || this.newProject(true)).newTask();
       $('tasks-list').appendChild(t.node);
+      t.active = true;
       t.editing = noEdit ? false : true;
+      return t;
     },
 
     getActiveProject: function () {
@@ -312,7 +339,7 @@
     },
 
     getActiveItem: function () {
-      return todo.activeSection.activeItem;
+      return todo.lastActiveSection.activeItem;
     },
 
     getActiveTask: function () {
