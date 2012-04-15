@@ -14,7 +14,7 @@ This first prototype is currently only tested on Firefox.
 
 Current features:
 
-  * create and delete todos
+  * create and delete todos and categories
   * edit todos text and categories name
   * partial mouse navigation
   * partial keyboard navigation
@@ -26,7 +26,6 @@ Planned features:
   * full mouse navigation
   * full keyboard navigation
   * full touch screen navigation
-  * category creation and deletion
   * reorder categories and todos
   * declare todo as finished
   * undo / redo
